@@ -11,15 +11,13 @@ def configure():
     :return:
     """
     # read data
-    data = json.loads(request.data)
+    parameters = json.loads(request.data)
     # TODO: read data to create experiment setup
     study = Study(
-        numlvl=data['numlvl'],
-        numbranch=data['numbranch']
+        parameters
     )
-    
     # success
-    resp = Response(response=json.dumps(data),status=200)
+    resp = Response(status=200)
     return resp
 
 if __name__=='__main__':
