@@ -2,7 +2,10 @@ from uuid import uuid4
 
 
 class Node:
-
+    """
+    Node class that stores information
+    of a particular configuration in the study tree
+    """
     idx = 0
     def __init__(self, txt: str):
         assert isinstance(txt, str)
@@ -45,7 +48,7 @@ class Study:
         """
         Instantiate Study class
         :param parameters: dict containing levels, text at each level,
-        and number of branches at each level
+        and probability of the biased coin
         """
         # parse dict to create study tree
         self.root = Node(parameters['lvls'][0][0])
