@@ -36,7 +36,7 @@ class TestStudy(unittest.TestCase):
 
     def test_initialCount(self):
         study = Study.Study(self.parameters)
-        self.assertEqual(0, study.get_count([1, 1]))
+        self.assertEqual(0, study.get_node([1, 1]).count)
 
     def test_count(self):
         study = Study.Study(self.parameters)
