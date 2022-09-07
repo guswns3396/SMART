@@ -1,8 +1,23 @@
-from flask import Flask, request, Response, json
+from flask import Flask, request, Response, json, abort
 
 from Study import Study
 
+# maps study id to Study object
+STUDIES = {}
+
 app = Flask(__name__)
+
+@app.route('/join/<study_id>')
+def join_study(study_id):
+    """
+    Allows survey responder to join a study
+    Randomizes responder
+    :param study_id: id of study
+    :return:
+    """
+    if study_id not in STUDIES:
+        abort(Response('Room with given ID already exists', status=400))
+    # TODO randomize
 
 @app.route('/configure', methods=['POST'])
 def configure():
@@ -12,13 +27,18 @@ def configure():
     """
     # read data
     parameters = json.loads(request.data)
-    # TODO: read data to create experiment setup
+    # TODO: verify parameters syntax correct
+    # level 0 only has 1 text
+    # binary
+
     study = Study(
         parameters
     )
-    # success
-    resp = Response(status=200)
+    STUDIES[study.id] = study
+    # success, return study id
+    resp = Response(response=json.dumps(study.id), status=200)
     return resp
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     app.run(debug=True)

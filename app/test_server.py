@@ -3,26 +3,32 @@ import json
 
 import server
 
+
 class TestConfigure(unittest.TestCase):
-    def test_post(self):
+    def test_createStudy(self):
         server.app.testing = True
         client = server.app.test_client()
 
         data = {
-            0: {
-                'scn1': '0-txt1',
-                'numbranch': 2
-            },
-            1: {
-                'scn1': '1-txt1',
-                'scn2': '1-txt2',
-                'numbranch': 0
-            }
+            'lvls': [
+                [
+                    '0-txt0'
+                ],
+                [
+                    '1-txt0',
+                    '1-txt1',
+                ],
+                [
+                    '2-txt0',
+                    '2-txt1',
+                ]
+            ],
+            'p': 2 / 3
         }
         response = client.post(
             '/configure',
             data=json.dumps(data)
         )
 
-        # TODO: make sure correct response
-        pass
+        # study created
+        self.assertTrue(json.loads(response.get_data()) in server.STUDIES)
