@@ -7,6 +7,39 @@ STUDIES = {}
 
 app = Flask(__name__)
 
+# TODO: how to keep frontend and backend separate?
+
+@app.route('/')
+def home():
+    """
+
+    :return:
+    """
+    # show options to either
+    # join study or configure study
+    pass
+
+
+@app.route('/join_menu')
+def join_menu():
+    """
+
+    :return:
+    """
+    # show options for joining study
+    pass
+
+
+@app.route('/config_menu')
+def config_menu():
+    """
+
+    :return:
+    """
+    # show options for configuring study
+    pass
+
+
 @app.route('/join/<study_id>')
 def join_study(study_id):
     """
@@ -15,12 +48,16 @@ def join_study(study_id):
     :param study_id: id of study
     :return:
     """
+    # abort if invalid study id
     if study_id not in STUDIES:
-        abort(Response('Room with given ID already exists', status=400))
-    # TODO randomize
+        abort(Response('Room with given ID does not exist', status=400))
+    # find study
+    study = STUDIES[study_id]
+    # TODO: give participant first vignette
+
 
 @app.route('/configure', methods=['POST'])
-def configure():
+def configure_study():
     """
     Configures the parameters of the study
     :return:
@@ -38,6 +75,33 @@ def configure():
     # success, return study id
     resp = Response(response=json.dumps(study.id), status=200)
     return resp
+
+
+@app.route('/vignette')
+def show_vignette(params):
+    """
+
+    :param params:
+    :return:
+    """
+    # use the parameters to show vignette
+    # and question sets & choices
+    # then have submission redirect to submit
+    # TODO: find a way to get parameters without GET in URL
+    pass
+
+
+@app.route('/submit', methods=['POST'])
+def submit():
+    """
+
+    :return:
+    """
+    # store the participant's answers
+    # randomize if next vignette exists
+    # get vignette params following randomization
+    # redirect to vignette
+    pass
 
 
 if __name__ == '__main__':
