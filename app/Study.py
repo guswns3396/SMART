@@ -69,4 +69,10 @@ class Study:
         self.p = float(parameters['p'])
 
         # generate id for the study
-        self.id = uuid4()
+        self.id = str(uuid4())
+
+    def get_count(self, config):
+        node = self.root
+        for rand in config:
+            node = node[rand]
+        return node.count
