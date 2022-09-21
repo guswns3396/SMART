@@ -1,4 +1,4 @@
-from flask import Flask, request, json, session, redirect, url_for, render_template
+from flask import Flask, request, session, redirect, url_for, render_template
 
 from Study import Study
 
@@ -19,13 +19,13 @@ def home():
     # show options to either
     # join study or configure study
     session.clear()
-    return '<p>home</p>'
+    return render_template('index.html')
 
 
 @app.route('/join_menu')
 def join_menu():
     # show options for joining study
-    return '<p>join menu</p>'
+    return render_template('join_menu.html')
 
 
 @app.route('/config_menu')
@@ -37,9 +37,10 @@ def config_menu():
 @app.route('/study_id')
 def show_study_id():
     if 'study_id' not in session:
-        return '<p>no id</p>'
+        error = 'study not found'
+        return render_template('error.html', error=error)
     study_id = session['study_id']
-    return 'study id: ' + study_id
+    return render_template('show_id.html', study_id=study_id)
 
 
 @app.route('/vignette')
@@ -47,7 +48,8 @@ def show_vignette():
     # verify study and config data available
     for key in ['study_id', 'config']:
         if key not in session:
-            return '<p>no ' + key + '</p>'
+            error = key + ' not found'
+            return render_template('error.html', error=error)
     # get study & config
     study_id = session['study_id']
     study = STUDIES[study_id]
@@ -61,11 +63,16 @@ def randomize():
     # verify study and config data available
     for key in ['study_id', 'config']:
         if key not in session:
-            return 'no ' + key
+            error = key + ' not found'
+            return render_template('error.html', error=error)
     # get data
     config = session['config']
     study_id = session['study_id']
     study = STUDIES[study_id]
+    # make sure user answered questions before randomization
+    # (at a y node)
+    if len(config) % 2 == 1:
+        return redirect(url_for('show_vignette'))
     # randomize if next vignette exists
     if len(config) < len(study.lvls) * 2:
         x = study.randomize(config)
@@ -81,7 +88,7 @@ def randomize():
     else:
         print(config)
         study.print()
-        return "Thank you"
+        return render_template('done.html')
 
 
 @app.route('/join')
@@ -95,7 +102,8 @@ def join_study():
     study_id = args['study_id']
     # if invalid study id
     if study_id not in STUDIES:
-        return 'study not found'
+        error = 'study not found'
+        return render_template('error.html', error=error)
     # else get study
     study = STUDIES[study_id]
     # add participant
@@ -132,7 +140,8 @@ def submit():
     # verify study and config data available
     for key in ['study_id', 'config']:
         if key not in session:
-            return '<p>no ' + key + '</p>'
+            error = key + ' not found'
+            return render_template('error.html', error=error)
     # get study & config
     study_id = session['study_id']
     study = STUDIES[study_id]
