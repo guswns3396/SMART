@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vignette</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col col-12"><h1>{{ txt }}</h1></div>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <form action="/submit" method="POST" id="submit-form">
+            {% for question in qset %}
+                {% set outer_loop = loop %}
+                <fieldset>
+                    <legend>{{ question.q }}</legend>
+                    {% for answer in question.a %}
+                        <div>
+                            {% set name = 'q' ~ outer_loop.index %}
+                            {% if outer_loop.index == (qset|length) %}
+                                <input type="radio" id="{{ loop.index }}" name="prim_q" value="{{ question.a[answer] }}">
+                                <label for="{{ loop.index }}">{{ answer }}</label>
+                            {% else %}
+                                <input type="radio" id="{{ loop.index }}" name="{{ name }}" value="{{ question.a[answer] }}">
+                                <label for="{{ loop.index }}">{{ answer }}</label>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </fieldset>
+            {% endfor %}
+            <div class="container-fluid">
+                <div class="row">
+                    <button class="col-2" type="submit" id="submit-btn">Submit</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+<script src="{{url_for('static', filename='vignette.js')}}"></script>
+</body>
+</html>

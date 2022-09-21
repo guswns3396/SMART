@@ -8,19 +8,34 @@ class TestStudy(unittest.TestCase):
 
     def setUp(self) -> None:
         parameters = {
-            'lvls': [
-                [
-                    '0-txt0'
-                ],
-                [
-                    '1-txt0',
-                    '1-txt1',
-                ],
-                [
-                    '2-txt0',
-                    '2-txt1',
-                ]
+            'scenarios': [
+                ['0-snc1'],
+                ['1-scn1', '1-scn2'],
+                ['2-scn1', '2-scn2'],
+                ['3-scn1', '3-scn2']
             ],
+            'questions': [
+                ['1-q1', '1-q2'],
+                ['2-q1', '2-q2'],
+                ['3-q1', '3-q2']
+            ],
+            'answers': [
+                {'1-a1': 1, '1-a2': 2},
+                {'2-a1': 1, '2-a2': 2},
+                {'3-a1': 1, '3-a2': 2}
+            ],
+            'primary_question': {
+                'question': 'primary question',
+                'answers': {
+                    'a1': 1,
+                    'a2': 2,
+                    'a3': 3,
+                    'a4': 4,
+                    'a5': 5,
+                    'a6': 6,
+                    'a7': 7
+                }
+            },
             'p': 2 / 3
         }
         self.parameters = json.loads(json.dumps(parameters))
