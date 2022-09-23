@@ -4,9 +4,16 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
+from flaskr.db import get_db
+
 from .Study import Study
 
 bp = Blueprint('server', __name__)
+
+# TODO: incorporate database
+# TODO: store answers
+# TODO: input validation
+# TODO: how to keep from leaving survey
 
 # maps study id to Study object
 STUDIES = {}

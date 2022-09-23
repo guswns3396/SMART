@@ -1,0 +1,18 @@
+DROP TABLE IF EXISTS STUDIES;
+DROP TABLE IF EXISTS LEVELS;
+
+CREATE TABLE STUDIES (
+    study_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    study_name TEXT UNIQUE NOT NULL,
+    study_lvls INTEGER NOT NULL,
+    study_p REAL NOT NULL,
+    study_primary_q TEXT NULL
+);
+
+CREATE TABLE LEVELS (
+    level_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    level_scna TEXT NULL,
+    level_scnb TEXT NULL,
+    study_id INTEGER NOT NULL,
+    FOREIGN KEY (study_id) REFERENCES STUDIES (study_id)
+);
