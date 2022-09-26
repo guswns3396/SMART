@@ -14,6 +14,7 @@ bp = Blueprint('server', __name__)
 # TODO: store answers
 # TODO: input validation
 # TODO: how to keep from leaving survey
+# TODO: incorporate subject ID? => keep from retaking survey
 
 # maps study id to Study object
 STUDIES = {}
@@ -22,6 +23,12 @@ STUDIES = {}
 @bp.errorhandler(KeyError)
 def keyError(e):
     error = str(e) + " key not found"
+    return render_template('error.html', error=error), 400
+
+
+@bp.errorhandler(ValueError)
+def valueError(e):
+    error = str(e)
     return render_template('error.html', error=error), 400
 
 
@@ -124,13 +131,17 @@ def configure_study():
     # read data
     parameters = request.form
     # create study
-    study = Study(
-        parameters
-    )
-    STUDIES[study.id] = study
-    # store study id in session data
-    session['study_id'] = study.id
-    return redirect(url_for('server.show_study_id'))
+    try:
+        study = Study(
+            parameters
+        )
+    except ValueError as e:
+        raise e
+    else:
+        STUDIES[study.id] = study
+        # store study id in session data
+        session['study_id'] = study.id
+        return redirect(url_for('server.show_study_id'))
 
 
 @bp.route('/submit', methods=['GET', 'POST'])
