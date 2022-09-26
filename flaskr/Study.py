@@ -75,7 +75,16 @@ class Study:
         alist = parameters.getlist('scn-a')
         blist = parameters.getlist('scn-b')
         qlist = []
-        pa = {'a' + str(i + 1): i + 1 for i in range(7)}
+        pas = [
+            'Strongly disagree',
+            'Disagree',
+            'Somewhat disagree',
+            'Neutral',
+            'Somewhat agree',
+            'Agree',
+            'Strongly agree'
+        ]
+        pa = {a: i + 1 for a, i in zip(pas,range(7))}
         pq = Question(parameters['prim_q'], pa)
         qlist.append(pq)
         for scna, scnb in zip(alist, blist):
@@ -135,9 +144,9 @@ class Study:
             # else biased coin
             else:
                 if n1 > n2:
-                    p = 1 - self.p
-                elif n1 < n2:
                     p = self.p
+                elif n1 < n2:
+                    p = 1 - self.p
                 else:
                     p = 0.5
             x = bernoulli.rvs(p) * 2 - 1
