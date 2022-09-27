@@ -4,9 +4,10 @@ from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
-from flaskr.db import get_db
+# from flaskr.db import get_db
+from flaskr.models import db, Studies
 
-from .Study import Study
+from flaskr.Study import Study
 
 bp = Blueprint('server', __name__)
 
@@ -15,9 +16,6 @@ bp = Blueprint('server', __name__)
 # TODO: input validation
 # TODO: how to keep from leaving survey
 # TODO: incorporate subject ID? => keep from retaking survey
-
-# maps study id to Study object
-STUDIES = {}
 
 
 @bp.errorhandler(KeyError)
@@ -138,7 +136,10 @@ def configure_study():
     except ValueError as e:
         raise e
     else:
-        STUDIES[study.id] = study
+        db.session.add(
+            Studies(id=study.id, study=study)
+        )
+        db.session.commit()
         # store study id in session data
         session['study_id'] = study.id
         return redirect(url_for('server.show_study_id'))
