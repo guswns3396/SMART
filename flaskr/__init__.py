@@ -25,11 +25,13 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    # initialize db
     from flaskr.models import db
     app.app_context().push()
     db.init_app(app)
     db.create_all()
 
+    # create server blueprint
     from . import server
     app.register_blueprint(server.bp)
 
