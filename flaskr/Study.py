@@ -1,5 +1,6 @@
 from uuid import uuid4
 from scipy.stats import bernoulli
+from werkzeug.datastructures import ImmutableMultiDict
 
 
 class Question:
@@ -103,6 +104,7 @@ class Study:
         :param parameters: dict containing levels, text at each level,
         and probability of the biased coin
         """
+        self.parameters = parameters
         # verify parameters
         self.verify_params(parameters)
         # parse dict to create study levels
@@ -204,3 +206,6 @@ class Study:
             currnodes = nxtnodes
             l.append(counts)
         print(l)
+
+    def get_params(self):
+        return self.parameters

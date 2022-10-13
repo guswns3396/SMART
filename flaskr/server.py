@@ -1,33 +1,29 @@
-import functools
-
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
 
-# from flaskr.db import get_db
-from flaskr.models import db, Studies
+from flaskr.models import db, Studies, MutableStudy
 
 from flaskr.Study import Study
 
 bp = Blueprint('server', __name__)
 
-# TODO: incorporate database
 # TODO: store answers
 # TODO: input validation
 # TODO: how to keep from leaving survey
 # TODO: incorporate subject ID? => keep from retaking survey
 
 
-@bp.errorhandler(KeyError)
-def keyError(e):
-    error = str(e) + " key not found"
-    return render_template('error.html', error=error), 400
-
-
-@bp.errorhandler(ValueError)
-def valueError(e):
-    error = str(e)
-    return render_template('error.html', error=error), 400
+# @bp.errorhandler(KeyError)
+# def keyError(e):
+#     error = str(e) + " key not found"
+#     return render_template('error.html', error=error), 400
+#
+#
+# @bp.errorhandler(ValueError)
+# def valueError(e):
+#     error = str(e)
+#     return render_template('error.html', error=error), 400
 
 
 @bp.route('/')
@@ -60,9 +56,13 @@ def show_study_id():
 def show_vignette():
     # get study & config
     study_id = session['study_id']
-    study = STUDIES[study_id]
+    study_tbl = Studies.query.filter_by(id=study_id).first()
+    study = study_tbl.study
     config = session['config']
     vignette_params = study.get_vignette_params(config)
+    # update study
+    study_tbl.study = study
+    db.session.commit()
     return render_template('vignette.html', txt=vignette_params['txt'], qset=vignette_params['qset'])
 
 
@@ -76,7 +76,9 @@ def randomize():
     # get data
     config = session['config']
     study_id = session['study_id']
-    study = STUDIES[study_id]
+    # get study
+    study_tbl = Studies.query.filter_by(id=study_id).first()
+    study = study_tbl.study
     # make sure user answered questions before randomization
     # (at a y node)
     if len(config) % 2 == 1:
@@ -85,6 +87,9 @@ def randomize():
     if len(config) < len(study.lvls) * 2:
         x = study.randomize(config)
         config.append(x)
+        # update study
+        study_tbl.study = study
+        db.session.commit()
         # update config
         session['config'] = config
 
@@ -110,11 +115,15 @@ def join_study():
     # else get study id
     study_id = args['study_id']
     # get study
-    study = STUDIES[study_id]
+    study_tbl = Studies.query.filter_by(id=study_id).first()
+    study = study_tbl.study
     # add participant
     study.enroll()
+    # print
+    study.print()
     # set initial config
     config = []
+    db.session.commit()
     # store study id & participant configuration
     session['config'] = config
     session['study_id'] = study_id
@@ -130,7 +139,7 @@ def configure_study():
     parameters = request.form
     # create study
     try:
-        study = Study(
+        study = MutableStudy(
             parameters
         )
     except ValueError as e:
@@ -151,7 +160,8 @@ def submit():
         return redirect(url_for('server.show_vignette'))
     # get study & config
     study_id = session['study_id']
-    study = STUDIES[study_id]
+    study_tbl = Studies.query.filter_by(id=study_id).first()
+    study = study_tbl.study
     config = session['config']
     # get answers
     answers = request.form
@@ -159,5 +169,8 @@ def submit():
     config = study.get_answers(answers, config)
     # update config
     session['config'] = config
+    # update study
+    study_tbl.study = study
+    db.session.commit()
     # randomize
     return redirect(url_for('server.randomize'))
