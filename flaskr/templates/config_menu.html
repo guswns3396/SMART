@@ -18,7 +18,8 @@
             <div class="container-fluid">
                 <div class="row">
                     <label class="col-6" for="numlvls">Number of Levels:</label>
-                    <input class="col-2" type="text" id="numlvls" name="num_lvls">
+                    <input class="col-2" type="number" id="numlvls" name="num_lvls" min="1">
+                    <p class="col-2" id="numlvl-error">Must be a positive integer</p>
                 </div>
                 <div class="row">
                     <label class="col-6" for="prim-q">Primary Question:</label>
@@ -26,7 +27,8 @@
                 </div>
                 <div class="row">
                     <label class="col-6" for="prob">Probability:</label>
-                    <input class="col-6" type="text-area" id="prob" name="p">
+                    <input class="col-2" type="number" id="prob" name="p" min="0" max="1" step="any">
+                    <p class="col-2" id="p-error">Must be between 0 and 1</p>
                 </div>
             </div>
             <div class="container-fluid">
