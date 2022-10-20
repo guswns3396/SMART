@@ -14,6 +14,7 @@ bp = Blueprint('server', __name__)
 # TODO: incorporate subject ID? => keep from retaking survey (integration REDCap?)
 # TODO: ask your own question
 # TODO: only 1 primary question?
+# TODO: server-side validation
 
 
 # @bp.errorhandler(KeyError)

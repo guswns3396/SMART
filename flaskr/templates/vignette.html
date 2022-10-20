@@ -23,10 +23,10 @@
                         <div>
                             {% set name = 'q' ~ outer_loop.index %}
                             {% if outer_loop.index == (qset|length) %}
-                                <input type="radio" id="{{ loop.index }}" name="prim_q" value="{{ question.a[answer] }}">
+                                <input type="radio" id="{{ loop.index }}" name="prim_q" value="{{ question.a[answer] }}" required>
                                 <label for="{{ loop.index }}">{{ answer }}</label>
                             {% else %}
-                                <input type="radio" id="{{ loop.index }}" name="{{ name }}" value="{{ question.a[answer] }}">
+                                <input type="radio" id="{{ loop.index }}" name="{{ name }}" value="{{ question.a[answer] }}" required>
                                 <label for="{{ loop.index }}">{{ answer }}</label>
                             {% endif %}
                         </div>
