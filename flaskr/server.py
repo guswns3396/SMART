@@ -11,7 +11,9 @@ bp = Blueprint('server', __name__)
 # TODO: store answers
 # TODO: input validation
 # TODO: how to keep from leaving survey
-# TODO: incorporate subject ID? => keep from retaking survey
+# TODO: incorporate subject ID? => keep from retaking survey (integration REDCap?)
+# TODO: ask your own question
+# TODO: only 1 primary question?
 
 
 # @bp.errorhandler(KeyError)
