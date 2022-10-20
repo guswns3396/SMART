@@ -40,3 +40,11 @@ class MutableStudy(Mutable, Study):
 class Studies(db.Model):
     id = db.Column(db.Text, primary_key=True)
     study = db.Column(MutableStudy.as_mutable(db.PickleType), nullable=False)
+
+
+class Subjects(db.Model):
+    id = db.Column(db.Text, primary_key=True)
+
+
+# class Answers(db.Model):
+#     pass
