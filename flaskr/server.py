@@ -1,13 +1,12 @@
+from io import StringIO
+import requests
+import pandas as pd
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-
 from flaskr.models import db, Studies, MutableStudy
 
-from flaskr.Study import Study
-
 bp = Blueprint('server', __name__)
-
 
 # @bp.errorhandler(KeyError)
 # def keyError(e):
@@ -100,15 +99,54 @@ def randomize():
         return redirect(url_for('server.done'))
 
 
-@bp.route('/join')
+@bp.route('/join', methods=('GET', 'POST'))
 def join_study():
-    # get query parameter for study id
-    args = request.args.to_dict()
-    # if study_id not defined redirect to join menu
-    if 'study_id' not in args:
+    if request.method == 'GET':
         return redirect(url_for('server.join_menu'))
-    # else get study id
+    # get form args
+    args = request.form
+    # get study id
     study_id = args['study_id']
+    username = args['username']
+    password = args['password']
+
+    # find study
+    study_tbl = Studies.query.filter_by(id=study_id).first()
+    # get redcap attributes
+    token = study_tbl.token
+    username_field = study_tbl.username_field
+    password_field = study_tbl.password_field
+    # get list of users
+    data = {
+        'token': token,
+        'content': 'record',
+        'action': 'export',
+        'format': 'csv',
+        'type': 'flat',
+        'csvDelimiter': '',
+        'fields[0]': username_field,
+        'fields[1]': password_field,
+        'rawOrLabel': 'raw',
+        'rawOrLabelHeaders': 'raw',
+        'exportCheckboxLabel': 'false',
+        'exportSurveyFields': 'false',
+        'exportDataAccessGroups': 'false',
+        'returnFormat': 'json'
+    }
+    # make request
+    r = requests.post('https://redcap.stanford.edu/api/', data=data)
+    try:
+        r.raise_for_status()
+    except requests.exceptions.HTTPError as e:
+        # Whoops it wasn't a 200
+        print("Error: " + str(e))
+        raise e
+    # verify user and password
+    df = pd.read_csv(StringIO(r.text))
+    # no match
+    if not ((df[username_field] == username) & (df[password_field] == password)).any():
+        flash('Invalid username and password')
+        return redirect(url_for('server.join_menu'))
     # get study
     study_tbl = Studies.query.filter_by(id=study_id).first()
     study = study_tbl.study
@@ -141,7 +179,13 @@ def configure_study():
         raise e
     else:
         db.session.add(
-            Studies(id=study.id, study=study)
+            Studies(
+                id=study.id,
+                study=study,
+                token=parameters['token'],
+                username_field=parameters['username_field'],
+                password_field=parameters['password_field']
+            )
         )
         db.session.commit()
         # store study id in session data

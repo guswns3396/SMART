@@ -37,14 +37,25 @@ class MutableStudy(Mutable, Study):
         return newconfig
 
 
+participations = db.Table(
+    'participations',
+    db.Column('subject', db.Text, db.ForeignKey('subjects.id')),
+    db.Column('study', db.Text, db.ForeignKey('studies.id')),
+)
+
+
 class Studies(db.Model):
     id = db.Column(db.Text, primary_key=True)
     study = db.Column(MutableStudy.as_mutable(db.PickleType), nullable=False)
+    token = db.Column(db.Text, nullable=False)
+    username_field = db.Column(db.Text, nullable=False)
+    password_field = db.Column(db.Text, nullable=False)
 
 
 class Subjects(db.Model):
     id = db.Column(db.Text, primary_key=True)
-
+    pw = db.Column(db.Text, nullable=False)
+    participating = db.relationship('Studies', secondary=participations, backref='participants')
 
 # class Answers(db.Model):
 #     pass
