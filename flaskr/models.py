@@ -71,5 +71,5 @@ class Participations(db.Model):
 
     configuration = db.Column(MutableList.as_mutable(db.PickleType), nullable=False)
 
-    subject_rel = db.relationship('Subjects', backref='subject_participation')
+    subject_rel = db.relationship('Subjects', backref='subject_participations')
     study_rel = db.relationship('Studies', backref='study_participants')

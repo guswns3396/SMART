@@ -148,7 +148,7 @@ def join_study():
     try:
         r.raise_for_status()
     except requests.exceptions.HTTPError as e:
-        # Whoops it wasn't a 200
+        # it wasn't a 200
         print("Error: " + str(e))
         raise e
     # verify user and password
