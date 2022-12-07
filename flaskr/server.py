@@ -53,9 +53,7 @@ def show_vignette():
     study_tbl = Studies.query.filter_by(id=study_id).first()
     study = study_tbl.study
     subject_id = session['subject_id']
-    participation = db.session.query(Participations).filter(
-        Participations.c.study == study_id, Participations.c.subject == subject_id
-    ).first()
+    participation = Participations.query.filter_by(study=study_id, subject=subject_id).first()
     config = participation.configuration
 
     print('current participant config: ', config)
@@ -79,9 +77,7 @@ def randomize():
     study_tbl = Studies.query.filter_by(id=study_id).first()
     study = study_tbl.study
     # get participation
-    participation = db.session.query(Participations).filter(
-        Participations.c.study == study_id, Participations.c.subject == subject_id
-    ).first()
+    participation = Participations.query.filter_by(study=study_id, subject=subject_id).first()
     config = participation.configuration
 
     print('current participant config: ', config)
@@ -170,22 +166,20 @@ def join_study():
     study_tbl = Studies.query.filter_by(id=study_id).first()
     study = study_tbl.study
     # add if no participation
-    participation = Participations.query.filter_by(study=study_id, subject=username).first()
-    print(participation)
-    if not db.session.query(Participations).filter(
-        Participations.c.study == study_id, Participations.c.subject == username
-    ).first():
-        stmnt = Participations.insert().values(study=study_id, subject=username, configuration=[])
-        db.session.execute(stmnt)
+    if not Participations.query.filter_by(study=study_id, subject=username).first():
+        db.session.add(
+            Participations(
+                study=study_id,
+                subject=username,
+                configuration=[]
+            )
+        )
         # add participant
         study.enroll()
         # commit changes
-        study_tbl.study = study
         db.session.commit()
     # get participation
-    participation = db.session.query(Participations).filter(
-        Participations.c.study == study_id, Participations.c.subject == username
-    ).first()
+    participation = Participations.query.filter_by(study=study_id, subject=username).first()
     config = participation.configuration
 
     print('current participant config: ', config)
@@ -237,9 +231,7 @@ def submit():
     study_tbl = Studies.query.filter_by(id=study_id).first()
     study = study_tbl.study
     subject_id = session['subject_id']
-    participation = db.session.query(Participations).filter(
-        Participations.c.study == study_id, Participations.c.subject == subject_id
-    ).first()
+    participation = Participations.query.filter_by(study=study_id, subject=subject_id).first()
     config = participation.configuration
     # get answers
     answers = request.form
