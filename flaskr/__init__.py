@@ -31,8 +31,9 @@ def create_app(test_config=None):
     db.init_app(app)
     db.create_all()
 
-    # create server blueprint
-    from . import server
-    app.register_blueprint(server.bp)
+    # create blueprints
+    from . import home, administer
+    app.register_blueprint(home.bp)
+    app.register_blueprint(administer.bp)
 
     return app

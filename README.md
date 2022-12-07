@@ -4,13 +4,13 @@ Prototype implementation of Sequential Multiple Assignment Randomized Trials (SM
 #### TODO
 * store answers
 * ~input validation [DONE until validating custom questions]~
-* ~how to keep from leaving survey (store subject's progress / config in db)~
+* ~store subject's progress / config in db~
 * ~incorporate subject ID? => keep from retaking survey (integration REDCap?)~
 * ask your own question
 * only 1 primary question?
 * server-side validation
 * keep from breaking (invalid study id, etc)
 * show amazon code after survey
-* ~if a user tries to take survey again~
-* log in
+* ~log in~
 * log out
+* authenticate REDCap token (account for false studies)

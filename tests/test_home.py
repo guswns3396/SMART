@@ -1,6 +1,6 @@
 import pytest
 
-from flaskr.server import app
+from flaskr.home import app
 
 
 # test configure
