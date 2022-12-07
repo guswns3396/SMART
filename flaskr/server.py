@@ -4,7 +4,7 @@ import pandas as pd
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from flaskr.models import db, Studies, MutableStudy
+from flaskr.models import db, Studies, MutableStudy, Answers, Subjects, Participations
 
 bp = Blueprint('server', __name__)
 
@@ -48,15 +48,20 @@ def show_study_id():
 
 @bp.route('/vignette')
 def show_vignette():
-    # get study & config
+    # get study & participation
     study_id = session['study_id']
     study_tbl = Studies.query.filter_by(id=study_id).first()
     study = study_tbl.study
-    config = session['config']
+    subject_id = session['subject_id']
+    participation = db.session.query(Participations).filter(
+        Participations.c.study == study_id, Participations.c.subject == subject_id
+    ).first()
+    config = participation.configuration
+
+    print('current participant config: ', config)
+
+    # get vignette parameters
     vignette_params = study.get_vignette_params(config)
-    # update study
-    study_tbl.study = study
-    db.session.commit()
     return render_template('vignette.html', txt=vignette_params['txt'], qset=vignette_params['qset'])
 
 
@@ -68,11 +73,19 @@ def done():
 @bp.route('/randomize')
 def randomize():
     # get data
-    config = session['config']
+    subject_id = session['subject_id']
     study_id = session['study_id']
     # get study
     study_tbl = Studies.query.filter_by(id=study_id).first()
     study = study_tbl.study
+    # get participation
+    participation = db.session.query(Participations).filter(
+        Participations.c.study == study_id, Participations.c.subject == subject_id
+    ).first()
+    config = participation.configuration
+
+    print('current participant config: ', config)
+
     # make sure user answered questions before randomization
     # (at a y node)
     if len(config) % 2 == 1:
@@ -81,19 +94,21 @@ def randomize():
     if len(config) < len(study.lvls) * 2:
         x = study.randomize(config)
         config.append(x)
-        # update study
+        # update study & participation
         study_tbl.study = study
+        print(type(participation))
+        print(type(participation.configuration))
+        participation.configuration = config
         db.session.commit()
-        # update config
-        session['config'] = config
 
-        print(config)
+        print('current participant config after randomization: ', config)
         study.print()
 
         # redirect to next vignette
         return redirect(url_for('server.show_vignette'))
+    # otherwise finish survey
     else:
-        print(config)
+        print('current participant config after completion: ', config)
         study.print()
         session.clear()
         return redirect(url_for('server.done'))
@@ -109,7 +124,6 @@ def join_study():
     study_id = args['study_id']
     username = args['username']
     password = args['password']
-
     # find study
     study_tbl = Studies.query.filter_by(id=study_id).first()
     # get redcap attributes
@@ -147,19 +161,40 @@ def join_study():
     if not ((df[username_field] == username) & (df[password_field] == password)).any():
         flash('Invalid username and password')
         return redirect(url_for('server.join_menu'))
+    # add to table if not exist
+    if not Subjects.query.get(username):
+        db.session.add(
+            Subjects(id=username)
+        )
     # get study
     study_tbl = Studies.query.filter_by(id=study_id).first()
     study = study_tbl.study
-    # add participant
-    study.enroll()
+    # add if no participation
+    participation = Participations.query.filter_by(study=study_id, subject=username).first()
+    print(participation)
+    if not db.session.query(Participations).filter(
+        Participations.c.study == study_id, Participations.c.subject == username
+    ).first():
+        stmnt = Participations.insert().values(study=study_id, subject=username, configuration=[])
+        db.session.execute(stmnt)
+        # add participant
+        study.enroll()
+        # commit changes
+        study_tbl.study = study
+        db.session.commit()
+    # get participation
+    participation = db.session.query(Participations).filter(
+        Participations.c.study == study_id, Participations.c.subject == username
+    ).first()
+    config = participation.configuration
+
+    print('current participant config: ', config)
+
     # print
     study.print()
-    # set initial config
-    config = []
-    db.session.commit()
-    # store study id & participant configuration
-    session['config'] = config
+    # store study id & username
     session['study_id'] = study_id
+    session['subject_id'] = username
     # show vignette
     return redirect(url_for('server.randomize'))
 
@@ -197,18 +232,23 @@ def configure_study():
 def submit():
     if request.method == 'GET':
         return redirect(url_for('server.show_vignette'))
-    # get study & config
+    # get study & participation
     study_id = session['study_id']
     study_tbl = Studies.query.filter_by(id=study_id).first()
     study = study_tbl.study
-    config = session['config']
+    subject_id = session['subject_id']
+    participation = db.session.query(Participations).filter(
+        Participations.c.study == study_id, Participations.c.subject == subject_id
+    ).first()
+    config = participation.configuration
     # get answers
     answers = request.form
     print(answers)
+    # store answers
+    pass
     config = study.get_answers(answers, config)
-    # update config
-    session['config'] = config
-    # update study
+    # update study & participation
+    participation.configuration = config
     study_tbl.study = study
     db.session.commit()
     # randomize

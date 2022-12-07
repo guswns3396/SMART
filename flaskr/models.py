@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy.ext.mutable import Mutable, MutableDict, MutableList
 from flaskr.Study import Study
 
 db = SQLAlchemy()
@@ -37,10 +37,18 @@ class MutableStudy(Mutable, Study):
         return newconfig
 
 
-participations = db.Table(
-    'participations',
+# Participations = db.Table(
+#     'participations',
+#     db.Column('subject', db.Text, db.ForeignKey('subjects.id')),
+#     db.Column('study', db.Text, db.ForeignKey('studies.id')),
+#     db.Column('configuration', MutableList.as_mutable(db.PickleType), nullable=False)
+# )
+
+Answers = db.Table(
+    'answers',
     db.Column('subject', db.Text, db.ForeignKey('subjects.id')),
     db.Column('study', db.Text, db.ForeignKey('studies.id')),
+    db.Column('answer', MutableDict.as_mutable(db.PickleType))
 )
 
 
@@ -54,8 +62,14 @@ class Studies(db.Model):
 
 class Subjects(db.Model):
     id = db.Column(db.Text, primary_key=True)
-    pw = db.Column(db.Text, nullable=False)
-    participating = db.relationship('Studies', secondary=participations, backref='participants')
+    # subject_participations = db.relationship('Studies', secondary=Participations, backref='study_participants')
+    # subject_answers = db.relationship('Studies', secondary=Answers, backref='study_answers')
 
-# class Answers(db.Model):
-#     pass
+class Participations(db.Model):
+    subject = db.Column(db.Text, db.ForeignKey('subjects.id'), primary_key=True)
+    study = db.Column(db.Text, db.ForeignKey('studies.id'), primary_key=True)
+
+    configuration = db.Column(MutableList.as_mutable(db.PickleType), nullable=False)
+
+    subject_rel = db.relationship('Subjects', backref='subject_participation')
+    study_rel = db.relationship('Studies', backref='study_participants')
