@@ -4,7 +4,7 @@ import pandas as pd
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from flaskr.models import db, Studies, MutableStudy, Subjects, Participations
+from flaskr.models import db, Studies, MutableStudy, Subjects, Participations, Levels, Questions, LevelQuestions, StudyLevels
 
 bp = Blueprint('home', __name__)
 
@@ -113,32 +113,63 @@ def configure_study():
     # read data
     parameters = request.form
 
-    # create study
-    try:
-        study = MutableStudy(
-            parameters
+    # verify data
+    MutableStudy.verify_params(parameters)
+    # parse parameters to create levels & questions
+    levels = MutableStudy.make_levels(parameters)
+    # make tree
+    root = MutableStudy.make_tree(levels)
+    # instantiate study
+    study = MutableStudy(root=root, numlvls=len(levels), p=float(parameters['p']))
+
+    # insert study
+    db.session.add(
+        Studies(
+            id=study.id,
+            study=study,
+            token=parameters['token'],
+            username_field=parameters['username_field'],
+            password_field=parameters['password_field']
         )
-    except ValueError as e:
-        raise e
-    else:
+    )
+    # insert levels to db
+    for i, level in enumerate(levels):
         db.session.add(
-            Studies(
-                id=study.id,
-                study=study,
-                token=parameters['token'],
-                username_field=parameters['username_field'],
-                password_field=parameters['password_field']
+            Levels(
+                level_num=i,
+                scna=level.scna,
+                scnb=level.scnb
             )
         )
-        db.session.commit()
+        currlvl = Levels.query.order_by(Levels.id.desc()).first()
+        # fill association table
+        db.session.add(
+            StudyLevels(
+                level_id=currlvl.id,
+                study_id=study.id
+            )
+        )
+        # insert questions to db
+        for j, question in enumerate(level.qset):
+            db.session.add(
+                Questions(
+                    question_num=j,
+                    question=question.q,
+                    range=question.a
+                )
+            )
+            currq = Questions.query.order_by(Questions.id.desc()).first()
+            # fill association table
+            db.session.add(
+                LevelQuestions(
+                    level_id=currlvl.id,
+                    question_id=currq.id
+                )
+            )
+    db.session.commit()
 
-        # add questions to db
-        for lvl in study.lvls:
-            for q in lvl.qset:
-                print(q.q, q.a)
-
-        # show study id
-        return render_template('show_id.html', study_id=study.id)
+    # show study id
+    return render_template('show_id.html', study_id=study.id)
 
 
 @bp.route('/')

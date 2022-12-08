@@ -1,6 +1,5 @@
 from uuid import uuid4
 from scipy.stats import bernoulli
-from werkzeug.datastructures import ImmutableMultiDict
 
 
 class Question:
@@ -77,7 +76,7 @@ class Study:
             raise ValueError('number of scenarios does not match number of levels:')
 
     @staticmethod
-    def parse_param(parameters: 'ImmutableMultiDict'):
+    def make_levels(parameters: 'ImmutableMultiDict'):
         lvls = []
         alist = parameters.getlist('scn-a')
         blist = parameters.getlist('scn-b')
@@ -98,33 +97,29 @@ class Study:
             lvls.append(Level(scna, scnb, qlist))
         return lvls
 
-    def __init__(self, parameters: 'ImmutableMultiDict'):
+    def __init__(self, root: 'YNode', numlvls: int, p: float):
         """
         Instantiate Study class
-        :param parameters: dict containing levels, text at each level,
-        and probability of the biased coin
         """
-        self.parameters = parameters
-        # verify parameters
-        self.verify_params(parameters)
-        # parse dict to create study levels
-        self.lvls = self.parse_param(parameters)
-        # create tree
-        self.root = self.make_tree()
+        # root node
+        self.root = root
+        # number of levels
+        self.numlvls = numlvls
         # probability
-        self.p = float(parameters['p'])
+        self.p = p
         # generate id for the study
         self.id = str(uuid4())
 
-    def make_tree(self):
+    @staticmethod
+    def make_tree(levels):
         root = YNode()
         currnodes = [root]
-        for i in range(len(self.lvls) * 2):
+        for i in range(len(levels) * 2):
             nxtnodes = []
             if i % 2 == 0:
                 for node in currnodes:
-                    node.a = XNode(self.lvls[i // 2].scna, self.lvls[i // 2].qset)
-                    node.b = XNode(self.lvls[i // 2].scnb, self.lvls[i // 2].qset)
+                    node.a = XNode(levels[i // 2].scna, levels[i // 2].qset)
+                    node.b = XNode(levels[i // 2].scnb, levels[i // 2].qset)
                     nxtnodes.extend([node.a, node.b])
             else:
                 for node in currnodes:
@@ -197,7 +192,7 @@ class Study:
     def print(self):
         l = [[self.root.count]]
         currnodes = [self.root]
-        for i in range(len(self.lvls) * 2):
+        for i in range(self.numlvls * 2):
             counts = []
             nxtnodes = []
             for node in currnodes:
@@ -206,6 +201,3 @@ class Study:
             currnodes = nxtnodes
             l.append(counts)
         print(l)
-
-    def get_params(self):
-        return self.parameters

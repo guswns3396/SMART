@@ -79,7 +79,7 @@ def randomize():
         return redirect(url_for('administer.show_vignette'))
 
     # randomize if next vignette exists
-    if len(config) < len(study.lvls) * 2:
+    if len(config) < study.numlvls * 2:
         x = study.randomize(config)
         config.append(x)
         # update study & participation
@@ -148,7 +148,7 @@ def done():
     config = participation.configuration
     study = participation.study.study
     # redirect if not done
-    if len(config) < len(study.lvls) * 2:
+    if len(config) < study.numlvls * 2:
         return redirect(url_for('administer.randomize'))
     # clear session
     session.clear()

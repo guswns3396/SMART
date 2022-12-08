@@ -49,6 +49,34 @@ class Studies(db.Model):
     password_field = db.Column(db.Text, nullable=False)
 
 
+# class Nodes(db.Model):
+#     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+#     parent = db.Column(db.Integer)
+#     a = db.Column(db.Integer)
+#     b = db.Column(db.Integer)
+#     count = db.Column(db.Integer)
+#
+#     isX = db.Column(db.Boolean, nullable=False)
+#     txt = db.Column(db.Text)
+#     qset = db.Column(MutableList.as_mutable(db.PickleType))
+#
+#
+# class StudyNodes(db.Model):
+#     study_id = db.Column(db.Text, db.ForeignKey('studies.id'), primary_key=True)
+#     node_id = db.Column(db.Text, db.ForeignKey('Nodes.id'), primary_key=True)
+#
+#     study = db.relationship('Studies', backref='studynodes')
+#     node = db.relationship('Nodes', backref='nodestudies')
+#
+#
+# class Roots(db.Model):
+#     study_id = db.Column(db.Text, db.ForeignKey('studies.id'), primary_key=True)
+#     node_id = db.Column(db.Text, db.ForeignKey('Nodes.id'), primary_key=True)
+#
+#     study = db.relationship('Studies', backref='root')
+#     node = db.relationship('Nodes', backref='root')
+
+
 class Levels(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     level_num = db.Column(db.Integer, nullable=False)
@@ -67,7 +95,7 @@ class StudyLevels(db.Model):
 
 class Questions(db.Model):
     id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    question_num = db.Column(db.Integer, nullable=False)  # primary question => question_num = 1
+    question_num = db.Column(db.Integer, nullable=False)  # primary question => question_num = 0
     question = db.Column(db.Text, nullable=False)
     range = db.Column(MutableDict.as_mutable(db.PickleType), nullable=False)
 
