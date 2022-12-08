@@ -12,5 +12,5 @@ Prototype implementation of Sequential Multiple Assignment Randomized Trials (SM
 * keep from breaking (invalid study id, etc)
 * show amazon code after survey
 * ~log in~
-* log out
+* ~log out~
 * authenticate REDCap token (account for false studies)
