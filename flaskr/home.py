@@ -20,7 +20,6 @@ bp = Blueprint('home', __name__)
 #     error = str(e)
 #     return render_template('error.html', error=error), 400
 
-
 @bp.route('/join', methods=('GET', 'POST'))
 def join_study():
     # redirect if GET method
@@ -141,7 +140,6 @@ def configure_study():
 def home():
     # show options to either
     # join study or configure study
-    session.clear()
     return render_template('index.html')
 
 

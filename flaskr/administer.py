@@ -20,6 +20,13 @@ def load_logged_in_user():
         g.user = participation
 
 
+@bp.after_app_request
+def after_request(response):
+    # keep from caching page in case of back button
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate, post-check=0, pre-check=0"
+    return response
+
+
 def login_required(view):
     @functools.wraps(view)
     def wrapped_view(**kwargs):
@@ -27,6 +34,7 @@ def login_required(view):
         if g.user is None:
             return redirect(url_for('home.join_menu'))
         return view(**kwargs)
+
     return wrapped_view
 
 
@@ -43,6 +51,10 @@ def show_vignette():
 
     # print
     print('current participant config: ', config)
+
+    # make sure on x node
+    if len(config) % 2 == 0:
+        return redirect(url_for('administer.randomize'))
 
     # get vignette parameters
     vignette_params = study.get_vignette_params(config)
@@ -120,7 +132,27 @@ def submit():
     return redirect(url_for('administer.randomize'))
 
 
+@bp.route('/exit')
+@login_required
+def exit_survey():
+    session.clear()
+    return redirect(url_for('home.home'))
+
+
 @bp.route('/done')
 @login_required
 def done():
+    # check if actually done
+    # get study and participation
+    subject_id = session['subject_id']
+    study_id = session['study_id']
+    study_row = Studies.query.filter_by(id=study_id).first()
+    study = study_row.study
+    participation = Participations.query.filter_by(study=study_id, subject=subject_id).first()
+    config = participation.configuration
+    # redirect if not done
+    if len(config) < len(study.lvls) * 2:
+        return redirect(url_for('administer.randomize'))
+    # clear session
+    session.clear()
     return render_template('done.html')
