@@ -3,7 +3,7 @@ import functools
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for
 )
-from flaskr.models import db, Studies, Answers, Participations
+from flaskr.models import db, Studies, Participations
 
 bp = Blueprint('administer', __name__)
 
@@ -16,7 +16,7 @@ def load_logged_in_user():
     if subject_id is None or study_id is None:
         g.user = None
     else:
-        participation = Participations.query.filter_by(study=study_id, subject=subject_id).first()
+        participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
         g.user = participation
 
 
@@ -41,13 +41,12 @@ def login_required(view):
 @bp.route('/vignette')
 @login_required
 def show_vignette():
-    # get study & participation
+    # get participation
     study_id = session['study_id']
-    study_row = Studies.query.filter_by(id=study_id).first()
-    study = study_row.study
     subject_id = session['subject_id']
-    participation = Participations.query.filter_by(study=study_id, subject=subject_id).first()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     config = participation.configuration
+    study = participation.study.study
 
     # print
     print('current participant config: ', config)
@@ -67,9 +66,8 @@ def randomize():
     # get study and participation
     subject_id = session['subject_id']
     study_id = session['study_id']
-    study_row = Studies.query.filter_by(id=study_id).first()
-    study = study_row.study
     participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
+    study = participation.study.study
     config = participation.configuration
 
     # print
@@ -110,11 +108,10 @@ def submit():
 
     # get study & participation
     study_id = session['study_id']
-    study_row = Studies.query.filter_by(id=study_id).first()
-    study = study_row.study
     subject_id = session['subject_id']
     participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     config = participation.configuration
+    study = participation.study.study
 
     # get answers
     answers = request.form
@@ -147,10 +144,9 @@ def done():
     # get study and participation
     subject_id = session['subject_id']
     study_id = session['study_id']
-    study_row = Studies.query.filter_by(id=study_id).first()
-    study = study_row.study
     participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     config = participation.configuration
+    study = participation.study.study
     # redirect if not done
     if len(config) < len(study.lvls) * 2:
         return redirect(url_for('administer.randomize'))

@@ -74,23 +74,23 @@ def join_study():
         db.session.commit()
 
     # check participation
-    study = study_row.study
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=username).first()
     # add if no participation
-    if not Participations.query.filter_by(study_id=study_id, subject_id=username).first():
+    if not participation:
         db.session.add(
             Participations(
-                study=study_id,
-                subject=username,
+                study_id=study_id,
+                subject_id=username,
                 configuration=[]
             )
         )
+        participation = Participations.query.filter_by(study_id=study_id, subject_id=username).first()
         # add participant
-        study.enroll()
+        participation.study.study.enroll()
         # commit changes
         db.session.commit()
-    # get participation
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=username).first()
     config = participation.configuration
+    study = participation.study.study
 
     # print
     print('current participant config: ', config)
