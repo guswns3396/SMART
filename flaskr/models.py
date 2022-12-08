@@ -37,12 +37,12 @@ class MutableStudy(Mutable, Study):
         return newconfig
 
 
-Answers = db.Table(
-    'answers',
-    db.Column('subject', db.Text, db.ForeignKey('subjects.id')),
-    db.Column('study', db.Text, db.ForeignKey('studies.id')),
-    db.Column('answer', MutableDict.as_mutable(db.PickleType))
-)
+# Answers = db.Table(
+#     'answers',
+#     db.Column('subject', db.Text, db.ForeignKey('subjects.id')),
+#     db.Column('study', db.Text, db.ForeignKey('studies.id')),
+#     db.Column('answer', MutableDict.as_mutable(db.PickleType))
+# )
 
 
 class Studies(db.Model):
@@ -65,3 +65,13 @@ class Participations(db.Model):
 
     subject_rel = db.relationship('Subjects', backref='subject_participations')
     study_rel = db.relationship('Studies', backref='study_participants')
+
+
+class Answers(db.Model):
+    subject = db.Column(db.Text, db.ForeignKey('subjects.id'), primary_key=True)
+    study = db.Column(db.Text, db.ForeignKey('studies.id'), primary_key=True)
+
+    answer = db.Column(MutableDict.as_mutable(db.PickleType), nullable=False)
+
+    subject_rel = db.relationship('Subjects', backref='subject_answers')
+    study_rel = db.relationship('Studies', backref='study_answers')
