@@ -1,9 +1,9 @@
 import functools
 
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, g, redirect, render_template, request, session, url_for
 )
-from flaskr.models import db, Studies, Participations
+from flaskr.models import db, Participations
 
 bp = Blueprint('administer', __name__)
 

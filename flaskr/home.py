@@ -2,9 +2,10 @@ from io import StringIO
 import requests
 import pandas as pd
 from flask import (
-    Blueprint, flash, g, redirect, render_template, request, session, url_for
+    Blueprint, flash, redirect, render_template, request, session, url_for
 )
-from flaskr.models import db, Studies, MutableStudy, Subjects, Participations, Levels, Questions, LevelQuestions, StudyLevels
+from flaskr.models import db, Studies, MutableStudy, Subjects, Participations,\
+    Levels, Questions, LevelQuestions, StudyLevels
 
 bp = Blueprint('home', __name__)
 
