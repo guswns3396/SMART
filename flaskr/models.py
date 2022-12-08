@@ -44,6 +44,8 @@ class Subjects(db.Model):
 class Studies(db.Model):
     id = db.Column(db.Text, primary_key=True)
     study = db.Column(MutableStudy.as_mutable(db.PickleType), nullable=False)
+    numlvls = db.Column(db.Integer, nullable=False)
+    p = db.Column(db.Float, nullable=False)
     token = db.Column(db.Text, nullable=False)
     username_field = db.Column(db.Text, nullable=False)
     password_field = db.Column(db.Text, nullable=False)

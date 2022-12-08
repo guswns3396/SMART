@@ -127,6 +127,8 @@ def configure_study():
         Studies(
             id=study.id,
             study=study,
+            numlvls=study.numlvls,
+            p=study.p,
             token=parameters['token'],
             username_field=parameters['username_field'],
             password_field=parameters['password_field']
