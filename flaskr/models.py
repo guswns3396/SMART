@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.ext.mutable import Mutable
+from sqlalchemy.ext.mutable import Mutable, MutableDict, MutableList
 from flaskr.Study import Study
 
 db = SQLAlchemy()
@@ -37,6 +37,31 @@ class MutableStudy(Mutable, Study):
         return newconfig
 
 
+Answers = db.Table(
+    'answers',
+    db.Column('subject', db.Text, db.ForeignKey('subjects.id')),
+    db.Column('study', db.Text, db.ForeignKey('studies.id')),
+    db.Column('answer', MutableDict.as_mutable(db.PickleType))
+)
+
+
 class Studies(db.Model):
     id = db.Column(db.Text, primary_key=True)
     study = db.Column(MutableStudy.as_mutable(db.PickleType), nullable=False)
+    token = db.Column(db.Text, nullable=False)
+    username_field = db.Column(db.Text, nullable=False)
+    password_field = db.Column(db.Text, nullable=False)
+
+
+class Subjects(db.Model):
+    id = db.Column(db.Text, primary_key=True)
+
+
+class Participations(db.Model):
+    subject = db.Column(db.Text, db.ForeignKey('subjects.id'), primary_key=True)
+    study = db.Column(db.Text, db.ForeignKey('studies.id'), primary_key=True)
+
+    configuration = db.Column(MutableList.as_mutable(db.PickleType), nullable=False)
+
+    subject_rel = db.relationship('Subjects', backref='subject_participations')
+    study_rel = db.relationship('Studies', backref='study_participants')

@@ -2,12 +2,15 @@
 Prototype implementation of Sequential Multiple Assignment Randomized Trials (SMART)
 
 #### TODO
-* TODO: store answers
-* TODO: input validation [DONE until validating custom questions]
-* TODO: how to keep from leaving survey (store subject's progress / config in db)
-* TODO: incorporate subject ID? => keep from retaking survey (integration REDCap?)
-* TODO: ask your own question
-* TODO: only 1 primary question?
-* TODO: server-side validation
-* TODO: keep from breaking (invalid study id, etc)
-* TODO: show amazon code after survey
+* store answers
+* ~input validation [DONE until validating custom questions]~
+* ~store subject's progress / config in db~
+* ~incorporate subject ID? => keep from retaking survey (integration REDCap?)~
+* ask your own question
+* only 1 primary question?
+* server-side validation
+* keep from breaking (invalid study id, etc)
+* show amazon code after survey
+* ~log in~
+* log out
+* authenticate REDCap token (account for false studies)
