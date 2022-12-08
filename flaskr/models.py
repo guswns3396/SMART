@@ -58,8 +58,8 @@ class Subjects(db.Model):
 
 
 class Participations(db.Model):
-    subject = db.Column(db.Text, db.ForeignKey('subjects.id'), primary_key=True)
-    study = db.Column(db.Text, db.ForeignKey('studies.id'), primary_key=True)
+    subject_id = db.Column(db.Text, db.ForeignKey('subjects.id'), primary_key=True)
+    study_id = db.Column(db.Text, db.ForeignKey('studies.id'), primary_key=True)
 
     configuration = db.Column(MutableList.as_mutable(db.PickleType), nullable=False)
 
@@ -67,11 +67,27 @@ class Participations(db.Model):
     study_rel = db.relationship('Studies', backref='study_participants')
 
 
+class Levels(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    scna = db.Column(db.Text)
+    scnb = db.Column(db.Text)
+
+
+class Questions(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    study_id = db.Column(db.Text, db.ForeignKey('studies.id'))
+
+    question = db.Column(db.Text, nullable=False)
+    range = db.Column(MutableDict.as_mutable(db.PickleType), nullable=False)
+
+    subject_rel = db.relationship('Studies', backref='study_questions')
+
+
 class Answers(db.Model):
-    subject = db.Column(db.Text, db.ForeignKey('subjects.id'), primary_key=True)
-    study = db.Column(db.Text, db.ForeignKey('studies.id'), primary_key=True)
+    subject_id = db.Column(db.Text, db.ForeignKey('subjects.id'), primary_key=True)
+    question_id = db.Column(db.Text, db.ForeignKey('questions.id'), primary_key=True)
 
     answer = db.Column(MutableDict.as_mutable(db.PickleType), nullable=False)
 
     subject_rel = db.relationship('Subjects', backref='subject_answers')
-    study_rel = db.relationship('Studies', backref='study_answers')
+    question_rel = db.relationship('Questions', backref='question_answers')

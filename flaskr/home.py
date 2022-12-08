@@ -76,7 +76,7 @@ def join_study():
     # check participation
     study = study_row.study
     # add if no participation
-    if not Participations.query.filter_by(study=study_id, subject=username).first():
+    if not Participations.query.filter_by(study_id=study_id, subject_id=username).first():
         db.session.add(
             Participations(
                 study=study_id,
@@ -89,7 +89,7 @@ def join_study():
         # commit changes
         db.session.commit()
     # get participation
-    participation = Participations.query.filter_by(study=study_id, subject=username).first()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=username).first()
     config = participation.configuration
 
     # print
@@ -131,6 +131,11 @@ def configure_study():
             )
         )
         db.session.commit()
+
+        # add questions to db
+        for lvl in study.lvls:
+            for q in lvl.qset:
+                print(q.q, q.a)
 
         # show study id
         return render_template('show_id.html', study_id=study.id)

@@ -69,7 +69,7 @@ def randomize():
     study_id = session['study_id']
     study_row = Studies.query.filter_by(id=study_id).first()
     study = study_row.study
-    participation = Participations.query.filter_by(study=study_id, subject=subject_id).first()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     config = participation.configuration
 
     # print
@@ -113,11 +113,12 @@ def submit():
     study_row = Studies.query.filter_by(id=study_id).first()
     study = study_row.study
     subject_id = session['subject_id']
-    participation = Participations.query.filter_by(study=study_id, subject=subject_id).first()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     config = participation.configuration
 
     # get answers
     answers = request.form
+    print(type(answers))
     print(answers)
 
     # store answers
@@ -148,7 +149,7 @@ def done():
     study_id = session['study_id']
     study_row = Studies.query.filter_by(id=study_id).first()
     study = study_row.study
-    participation = Participations.query.filter_by(study=study_id, subject=subject_id).first()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     config = participation.configuration
     # redirect if not done
     if len(config) < len(study.lvls) * 2:
