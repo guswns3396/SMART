@@ -16,7 +16,7 @@ def load_logged_in_user():
     if subject_id is None or study_id is None:
         g.user = None
     else:
-        participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
+        participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
         g.user = participation
 
 
@@ -44,7 +44,7 @@ def show_vignette():
     # get participation
     study_id = session['study_id']
     subject_id = session['subject_id']
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     config = participation.configuration
 
     # print
@@ -64,7 +64,7 @@ def show_vignette():
         filter_by(level_num=level_num). \
         join(StudyLevels). \
         filter_by(study_id=study_id)
-    level = query.first_or_404()
+    level = query.first()
     print('\nGetting level')
     print(query)
     print(level)
@@ -94,7 +94,7 @@ def randomize():
     # get study and participation
     subject_id = session['subject_id']
     study_id = session['study_id']
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     study = participation.study.study
     config = participation.configuration
 
@@ -137,7 +137,7 @@ def submit():
     # get study & participation
     study_id = session['study_id']
     subject_id = session['subject_id']
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     config = participation.configuration
     study = participation.study.study
 
@@ -148,18 +148,39 @@ def submit():
 
     # make sure only 1 key value pair
     # make sure answers all str
-    for qid in answers.keys():
-        assert len(answers.getlist(qid)) == 1
-        assert isinstance(answers[qid], str)
+    for qnum in answers.keys():
+        assert len(answers.getlist(qnum)) == 1
+        assert isinstance(answers[qnum], str)
+
+    # get level
+    level_num = MutableStudy.get_level_num(config)
+    query = db.session.query(Levels). \
+        filter_by(level_num=level_num). \
+        join(StudyLevels). \
+        filter_by(study_id=study_id)
+    level = query.first()
+    print('\nGetting level')
+    print(query)
+    print(level)
 
     # store answers
     answers = dict(answers)
-    for qid in answers:
+    for qnum in answers:
+        query = db.session.query(Questions). \
+            filter_by(question_num=qnum). \
+            join(LevelQuestions). \
+            filter_by(level_id=level.id)
+        question = query.first()
+        print('\nGetting question')
+        print(query)
+        print(question)
+
+        # add answer
         db.session.add(
             Answers(
                 subject_id=subject_id,
-                question_id=qid,
-                answer=answers[qid]
+                question_id=question.id,
+                answer=answers[qnum]
             )
         )
     config = study.get_answer(int(answers['0']), config)
@@ -186,7 +207,7 @@ def done():
     # get study and participation
     subject_id = session['subject_id']
     study_id = session['study_id']
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
     config = participation.configuration
     study = participation.study.study
     # redirect if not done
