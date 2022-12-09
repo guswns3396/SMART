@@ -2,7 +2,7 @@
 Prototype implementation of Sequential Multiple Assignment Randomized Trials (SMART)
 
 #### TODO
-* store answers
+* ~store answers~
 * ~input validation [DONE until validating custom questions]~
 * ~store subject's progress / config in db~
   * ~log in~
@@ -20,12 +20,5 @@ Prototype implementation of Sequential Multiple Assignment Randomized Trials (SM
 * add randomization table (to keep track of randomizations in case we lose tree)?
 * UI
   * fix misclick
-
-how to connect nodes (which contain scenario, qset, count) to answers??
-* make tree through tables
-* use level / question num & filter
-  * alter get_vigentte_params
-
-keep tree for count & questions/scenarios separate?
-when user answers, just note the level & question
-questions differ between levels, same within level
+  * refresh entering num levels
+* efficiency
