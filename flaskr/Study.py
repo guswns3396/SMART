@@ -93,6 +93,11 @@ class Study:
         pa = {a: i + 1 for a, i in zip(pas, range(7))}
         pq = Question(parameters['prim_q'], pa)
         qlist.append(pq)
+
+        ### TEST
+        for i in range(3):
+            qlist.append(Question('test'+str(i), pa))
+
         for scna, scnb in zip(alist, blist):
             lvls.append(Level(scna, scnb, qlist))
         return lvls
@@ -129,6 +134,10 @@ class Study:
             currnodes = nxtnodes
         return root
 
+    @staticmethod
+    def get_level_num(config):
+        return len(config) // 2
+
     def get_node(self, config):
         node = self.root
         for i in config:
@@ -161,22 +170,19 @@ class Study:
         else:
             raise RuntimeError('cannot randomize further')
 
-    def get_vignette_params(self, config):
-        node = self.get_node(config)
-        if not isinstance(node, XNode):
-            raise RuntimeError('must be an x node to get parameters')
-        params = {
-            'txt': node.txt,
-            'qset': node.qset
-        }
-        return params
+    # def get_vignette_params(self, config):
+    #     node = self.get_node(config)
+    #     if not isinstance(node, XNode):
+    #         raise RuntimeError('must be an x node to get parameters')
+    #     params = {
+    #         'txt': node.txt,
+    #         'qset': node.qset
+    #     }
+    #     return params
 
-    def get_answers(self, answers: 'ImmutableMultiDict', config: list):
-        # parse answers
-        # store answers
+    def get_answer(self, answer: int, config: list):
         # update config based on answer to primary question
-        ans = int(answers['prim_q'])
-        if ans > 4:
+        if answer > 4:
             y = 1
         else:
             y = 0

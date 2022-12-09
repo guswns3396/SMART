@@ -31,8 +31,8 @@ class MutableStudy(Mutable, Study):
         self.changed()
         return x
 
-    def get_answers(self, answers: 'ImmutableMultiDict', config: list):
-        newconfig = Study.get_answers(self, answers, config)
+    def get_answer(self, answer: int, config: list):
+        newconfig = Study.get_answer(self, answer, config)
         self.changed()
         return newconfig
 
@@ -115,7 +115,7 @@ class Answers(db.Model):
     subject_id = db.Column(db.Text, db.ForeignKey('subjects.id'), primary_key=True)
     question_id = db.Column(db.Text, db.ForeignKey('questions.id'), primary_key=True)
 
-    answer = db.Column(MutableDict.as_mutable(db.PickleType), nullable=False)
+    answer = db.Column(db.Text, nullable=False)
 
     subject = db.relationship('Subjects', backref='answers')
     question = db.relationship('Questions', backref='answers')
