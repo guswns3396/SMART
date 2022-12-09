@@ -3,7 +3,7 @@ import functools
 from flask import (
     Blueprint, g, redirect, render_template, request, session, url_for
 )
-from flaskr.models import db, Participations
+from flaskr.models import db, MutableStudy, Participations, StudyLevels, LevelQuestions, Levels, Questions, Answers
 
 bp = Blueprint('administer', __name__)
 
@@ -16,7 +16,7 @@ def load_logged_in_user():
     if subject_id is None or study_id is None:
         g.user = None
     else:
-        participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
+        participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
         g.user = participation
 
 
@@ -44,9 +44,8 @@ def show_vignette():
     # get participation
     study_id = session['study_id']
     subject_id = session['subject_id']
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
     config = participation.configuration
-    study = participation.study.study
 
     # print
     print('current participant config: ', config)
@@ -56,8 +55,37 @@ def show_vignette():
         return redirect(url_for('administer.randomize'))
 
     # get vignette parameters
-    vignette_params = study.get_vignette_params(config)
-    return render_template('vignette.html', txt=vignette_params['txt'], qset=vignette_params['qset'])
+    # vignette_params = study.get_vignette_params(config)
+    # return render_template('vignette.html', txt=vignette_params['txt'], qset=vignette_params['qset'])
+
+    # get level
+    level_num = MutableStudy.get_level_num(config)
+    query = db.session.query(Levels). \
+        filter_by(level_num=level_num). \
+        join(StudyLevels). \
+        filter_by(study_id=study_id)
+    level = query.first_or_404()
+    print('\nGetting level')
+    print(query)
+    print(level)
+    # get questions
+    query = db.session.query(Questions). \
+        join(LevelQuestions). \
+        filter_by(level_id=level.id)
+    qset = query.all()
+    print("\nGetting questions")
+    print(query)
+    print(qset)
+
+    # get vignette parameters
+    if config[-1] == 1:
+        txt = level.scna
+    elif config[-1] == -1:
+        txt = level.scnb
+    else:
+        raise ValueError
+
+    return render_template('vignette.html', txt=txt, qset=qset)
 
 
 @bp.route('/randomize')
@@ -66,7 +94,7 @@ def randomize():
     # get study and participation
     subject_id = session['subject_id']
     study_id = session['study_id']
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
     study = participation.study.study
     config = participation.configuration
 
@@ -109,18 +137,32 @@ def submit():
     # get study & participation
     study_id = session['study_id']
     subject_id = session['subject_id']
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
     config = participation.configuration
     study = participation.study.study
 
     # get answers
     answers = request.form
-    print(type(answers))
+    print('\nAnswers')
     print(answers)
 
+    # make sure only 1 key value pair
+    # make sure answers all str
+    for qid in answers.keys():
+        assert len(answers.getlist(qid)) == 1
+        assert isinstance(answers[qid], str)
+
     # store answers
-    pass
-    config = study.get_answers(answers, config)
+    answers = dict(answers)
+    for qid in answers:
+        db.session.add(
+            Answers(
+                subject_id=subject_id,
+                question_id=qid,
+                answer=answers[qid]
+            )
+        )
+    config = study.get_answer(int(answers['0']), config)
 
     # update study & participation
     participation.configuration = config
@@ -144,7 +186,7 @@ def done():
     # get study and participation
     subject_id = session['subject_id']
     study_id = session['study_id']
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=subject_id).first_or_404()
     config = participation.configuration
     study = participation.study.study
     # redirect if not done
