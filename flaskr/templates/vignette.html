@@ -18,11 +18,17 @@
             {% for question in qset %}
                 {% set outer_loop = loop %}
                 <fieldset>
-                    <legend>{{ question.question }}</legend>
-                    {% for answer in question.range %}
+                    <legend>{{ question.q }}</legend>
+                    {% for answer in question.a %}
                         <div>
-                            <input type="radio" id="{{ loop.index }}" name="{{ question.question_num }}" value="{{ question.range[answer] }}" required>
-                            <label for="{{ loop.index }}">{{ answer }}</label>
+                            {% set name = 'q' ~ outer_loop.index %}
+                            {% if outer_loop.index == (qset|length) %}
+                                <input type="radio" id="{{ loop.index }}" name="prim_q" value="{{ question.a[answer] }}" required>
+                                <label for="{{ loop.index }}">{{ answer }}</label>
+                            {% else %}
+                                <input type="radio" id="{{ loop.index }}" name="{{ name }}" value="{{ question.a[answer] }}" required>
+                                <label for="{{ loop.index }}">{{ answer }}</label>
+                            {% endif %}
                         </div>
                     {% endfor %}
                 </fieldset>

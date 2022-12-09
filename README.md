@@ -5,21 +5,19 @@ Prototype implementation of Sequential Multiple Assignment Randomized Trials (SM
 * store answers
 * ~input validation [DONE until validating custom questions]~
 * ~store subject's progress / config in db~
-  * ~log in~
-  * ~log out~
 * ~incorporate subject ID? => keep from retaking survey (integration REDCap?)~
-* adding questions
-  * only 1 primary question?
-  * likert scale, text box
-  * change labels on likert scale (keep scale point same)
+* ask your own question
+* only 1 primary question?
 * server-side validation
-  * if user messes with values in vignette
-  * authenticate REDCap token (account for false studies)
 * keep from breaking (invalid study id, etc)
 * show amazon code after survey
-* add randomization table (to keep track of randomizations in case we lose tree)?
-* UI
-  * fix misclick
+* ~log in~
+* ~log out~
+* authenticate REDCap token (account for false studies)
+
+make parse_param & make_tree staticmethods
+call static methods to get lvls, root
+store lvls, root, p, id in table
 
 how to connect nodes (which contain scenario, qset, count) to answers??
 * make tree through tables

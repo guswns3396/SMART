@@ -4,7 +4,7 @@ import pandas as pd
 from flask import (
     Blueprint, flash, redirect, render_template, request, session, url_for
 )
-from flaskr.models import db, MutableStudy, Studies, Subjects, Participations,\
+from flaskr.models import db, Studies, MutableStudy, Subjects, Participations,\
     Levels, Questions, LevelQuestions, StudyLevels
 
 bp = Blueprint('home', __name__)
@@ -31,12 +31,12 @@ def join_study():
     study_id, username, password = request.form['study_id'], request.form['username'], request.form['password']
 
     # validate study id
-    if not Studies.query.filter_by(id=study_id).first_or_404():
+    if not Studies.query.filter_by(id=study_id).first():
         flash('Invalid study ID')
         return redirect(url_for('home.join_menu'))
 
     # read in users and passwords using REDCap API
-    study_row = Studies.query.filter_by(id=study_id).first_or_404()
+    study_row = Studies.query.filter_by(id=study_id).first()
     data = {
         'token': study_row.token,
         'content': 'record',
@@ -75,7 +75,7 @@ def join_study():
         db.session.commit()
 
     # check participation
-    participation = Participations.query.filter_by(study_id=study_id, subject_id=username).first_or_404()
+    participation = Participations.query.filter_by(study_id=study_id, subject_id=username).first()
     # add if no participation
     if not participation:
         db.session.add(
@@ -85,7 +85,7 @@ def join_study():
                 configuration=[]
             )
         )
-        participation = Participations.query.filter_by(study_id=study_id, subject_id=username).first_or_404()
+        participation = Participations.query.filter_by(study_id=study_id, subject_id=username).first()
         # add participant
         participation.study.study.enroll()
         # commit changes
@@ -144,7 +144,7 @@ def configure_study():
                 scnb=level.scnb
             )
         )
-        currlvl = Levels.query.order_by(Levels.id.desc()).first_or_404()
+        currlvl = Levels.query.order_by(Levels.id.desc()).first()
         # fill association table
         db.session.add(
             StudyLevels(
@@ -161,7 +161,7 @@ def configure_study():
                     range=question.a
                 )
             )
-            currq = Questions.query.order_by(Questions.id.desc()).first_or_404()
+            currq = Questions.query.order_by(Questions.id.desc()).first()
             # fill association table
             db.session.add(
                 LevelQuestions(
